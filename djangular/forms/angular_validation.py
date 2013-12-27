@@ -96,3 +96,6 @@ class NgFormValidationMixin(NgFormBaseMixin):
 
     def name(self):
         return self.form_name
+
+class NgModelFormValidationMixin():
+    pass
