@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import itertools
 from django import forms
+from django.core.validators import RegexValidator
+from django.db.models.fields import FieldDoesNotExist
 from django.utils.html import format_html, format_html_join
 from django.utils.encoding import force_text
 from django.utils.safestring import SafeData
@@ -97,5 +99,21 @@ class NgFormValidationMixin(NgFormBaseMixin):
     def name(self):
         return self.form_name
 
-class NgModelFormValidationMixin():
-    pass
+class NgModelFormValidationMixin(NgFormValidationMixin):
+    def __init__(self, *args, **kwargs):
+        super(NgModelFormValidationMixin, self).__init__(*args, **kwargs)
+
+        model = self._meta.model
+
+        for name, field in self.fields.items():
+            try:
+                model_field = model._meta.get_field_by_name(name)[0]
+
+                if model_field.validators:
+                    for validator in model_field.validators:
+                        if isinstance(validator, RegexValidator):
+                            parrern = '/%s/' % validator.regex.pattern
+                            field.widget.attrs['ng-pattern'] = parrern.replace('(?iu)/', '/i')
+
+            except FieldDoesNotExist:
+                pass
