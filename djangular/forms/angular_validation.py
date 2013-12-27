@@ -109,7 +109,7 @@ class NgModelFormValidationMixin(NgFormValidationMixin):
             try:
                 model_field = model._meta.get_field_by_name(name)[0]
 
-                if model_field.validators:
+                if hasattr(model_field, 'validators'):
                     for validator in model_field.validators:
                         if isinstance(validator, RegexValidator):
                             parrern = '/%s/' % validator.regex.pattern
